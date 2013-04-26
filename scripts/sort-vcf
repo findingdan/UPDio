@@ -1,0 +1,159 @@
+#!/usr/bin/perl
+# # Ray Miller, April 19, 2013
+# Hybrid merge/in-memory sort of VCF format data on STDIN.
+#
+# Alternative to vcf-sort from VcfUtils as the VcfUtils script does
+# not sort chromosomes in numeric order unless new verison of sort(1)
+# is installed.
+
+use strict;
+use warnings FATAL => 'all';
+
+use File::Temp qw( :seekable );
+use IO::Handle;
+use Const::Fast;
+
+# Sort in memory if we have fewer than $MEMSORT_LINES lines
+const my $MEMSORT_LINES => 10000;
+
+die "Usage: sort-vcf\n"
+    unless @ARGV == 0;
+
+my $ifh = IO::Handle->new_from_fd(fileno(STDIN), 'r')
+    or die "Failed to open STDIN for reading: $!";
+
+# Emit headers untouched
+my $line = $ifh->getline;
+while( defined( $line ) && $line =~ m/^#/ ) {
+    print $line;
+    $line = $ifh->getline;
+}
+
+# ...but sort the variants
+my $tmp = File::Temp->new();
+my $nlines = 0;
+while( defined( $line ) ) {
+    $nlines++;
+    $tmp->print($line);
+    $line = $ifh->getline;
+}
+
+my $sorted = merge_sort( $tmp, $nlines );
+
+while ( defined( $line = $sorted->getline ) ) {
+    print $line;
+}
+
+sub merge_sort {
+    my ( $fh, $nlines ) = @_;
+
+    $fh->seek(0,0);
+
+    if ( $nlines <= $MEMSORT_LINES ) {
+        return sort_in_memory( $fh );
+    }
+
+    my $f1 = File::Temp->new;
+    my $n1 = int( $nlines / 2 );
+    for ( 1 .. $n1 ) {
+        my $line = $fh->getline;
+        $f1->print( $line );
+    }
+
+    my $f2 = File::Temp->new;
+    my $n2 = $nlines - $n1;
+    for ( 1 .. $n2 ) {
+        my $line = $fh->getline;
+        $f2->print( $line );
+    }
+
+    my $s1 = merge_sort( $f1, $n1 );
+    my $s2 = merge_sort( $f2, $n2 );
+
+    my $v1 = $s1->getline;
+    my $v2 = $s2->getline;
+
+    my $merged = File::Temp->new;
+
+    while ( $v1 && $v2 ) {
+        my ( $chr1, $pos1 ) = chr_pos( $v1 );
+        my ( $chr2, $pos2 ) = chr_pos( $v2 );
+        my $cmp = $chr1 <=> $chr2 || $pos1 <=> $pos2;
+        if ( $cmp > 0 ) {
+            # $v1 > $v2
+            $merged->print( $v2 );
+            $v2 = $s2->getline;
+        }
+        elsif ( $cmp == 0 ) {
+            # $v1 == $v2
+            $merged->print( $v1 );
+            $merged->print( $v2 );
+            $v1 = $s1->getline;
+            $v2 = $s2->getline;
+        }
+        else {
+            # $v1 < $v2
+            $merged->print( $v1 );
+            $v1 = $s1->getline;
+        }
+    }
+    while ( $v1 ) {
+        $merged->print($v1);
+        $v1 = $s1->getline;
+    }
+    while ( $v2 ) {
+        $merged->print($v2);
+        $v2 = $s2->getline;
+    }
+
+    $merged->seek(0,0);
+
+    return $merged;
+}
+
+sub sort_in_memory {
+    my $fh = shift;
+
+    my $res = File::Temp->new;
+
+    my @sorted = map { $_->[0] } sort { $a->[1] <=> $b->[1] || $a->[2] <=> $b->[2] } map [ $_, chr_pos($_) ], <$fh>;
+
+    for my $v ( @sorted ) {
+        $res->print( $v );
+    }
+
+    $res->seek(0,0);
+
+    return $res;
+}
+
+sub chr_pos {
+    my $line = shift;
+    my @fields = split "\t", $line;
+    return ( chr2num( $fields[0] ), $fields[1] );
+}
+
+sub chr2num {
+    my $chr = shift;
+	return if ($chr =~ /^#/);
+    $chr =~ s/^[Cc]hr//i;
+
+    if ( $chr =~ m/^\d+$/ ) {
+		return $chr;
+    }
+    elsif ( $chr =~ /^X$/) {  #XY too
+			return 23
+	}
+    elsif ( $chr =~ /^Y$/) {
+			return 24
+	}
+	elsif ( $chr =~ /^XY$/) {
+			return 25
+	}
+    elsif ( $chr =~ /M/) {
+			return
+	}
+	else {
+  		die "Check chromosome name: $chr \n";
+	}
+}
