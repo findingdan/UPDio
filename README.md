@@ -81,3 +81,6 @@ A: You are using an older version of Statistics::R, please upgrade to 0.31
 
 Q: How can I gain access to 1000 MAFs to select common sites in my exome design?
 A: Sorry, this file was too large to load to github! Solutions: https://www.biostars.org/p/6897/ or email me.
+
+Q: Can you please supply the position file for Agilent_SureSelect_v4
+A: Yes, they are now in the directory ./exome_designs
