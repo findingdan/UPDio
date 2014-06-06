@@ -75,21 +75,20 @@ sub process_options {
 		}
 #		print Dumper "vcf", $vcf_inst, "common", $cs_inst;
 	#	print Dumper $chr, $pos, $id, $ref, $alt, $filter, 'FORMAT', $gt;
-#		print "I will print\t$chr\t$pos\t$id\t$ref\t$alt\t$filter\tFORMAT\t$gt\n";
 		print "$chr\t$pos\t$id\t$ref\t$alt\t.\t$filter\t.\tGT\t$gt\n";
 
 	}
-	# Purge last entry
-	if ($vcf_inst) {
-		$chr = $vcf_inst->{chr};
-		$pos = $vcf_inst->{pos};
-		$ref = $vcf_inst->{ref};
-		$alt = $vcf_inst->{alt};
-		$id  = $vcf_inst->{id};
-		$gt = $vcf_inst->{gt};
-		$filter = join (",", @{$vcf_inst->{filter}});
-		print "$chr\t$pos\t$id\t$ref\t$alt\tQUAL\t$filter\tINFO\tGT\t$gt\n";
-	}
+#	# Purge last entry
+#	if ($vcf_inst) {
+#		$chr = $vcf_inst->{chr};
+#		$pos = $vcf_inst->{pos};
+#		$ref = $vcf_inst->{ref};
+#		$alt = $vcf_inst->{alt};
+#		$id  = $vcf_inst->{id};
+#		$gt = $vcf_inst->{gt};
+#		$filter = join (",", @{$vcf_inst->{filter}});
+#		print "$chr\t$pos\t$id\t$ref\t$alt\tQUAL\t$filter\tINFO\tGT\t$gt\n";
+#	}
 }
 
 sub generate_polysites_iter {
