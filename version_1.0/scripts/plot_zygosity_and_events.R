@@ -1,5 +1,6 @@
 #!/usr/bin/Rscript
 # This is a script to intake vcf.gz genotypes and output a png zygosity map
+# This version is for UPDio version 1.0
 
 
 ## Subroutines
@@ -30,10 +31,6 @@ use_zcat_or_cat <- function (vcf) {
 get_genotype <- function(genotypes) {
 	genotype<-grep("/",unlist(strsplit(genotypes,":")),value=T)
 	genotype<-gsub("/","",genotype)
-#	genotype<-gsub("1/1",0,genotype); 
-#	genotype<-gsub("0/1",1,genotype); 
-#	genotype<-gsub("1/0",1,genotype); 
-#	genotype<-gsub("0/0",0,genotype); 
 	genotype<-gsub("11",0,genotype); 
 	genotype<-gsub("01",1,genotype); 
 	genotype<-gsub("10",1,genotype); 
@@ -43,26 +40,24 @@ get_genotype <- function(genotypes) {
 
 convert_event_to_numeric <- function(event) {
 
-	event<-sub("B",0,event); 
-	event<-sub("MI_S",0.5,event); 
-	event<-sub("MI_D",0.5,event); 
-	event<-sub("AI_P",1,event); 
-	event<-sub("UI_P",1.5,event); 
-	event<-sub("AI_M",2,event); 
-	event<-sub("UI_M",2.5,event); 
+	event<-sub("BPI",0,event); 
+	event<-sub("UA_P",0.5,event); 
+	event<-sub("UI_P",1,event); 
+	event<-sub("UA_M",1.5,event); 
+	event<-sub("UI_M",2,event); 
 
-#	event<-sub("BPI",0,event); 
-#	event<-sub("MI_S",0.5,event); 
-#	event<-sub("MI_D",0.5,event); 
-#	event<-sub("hUPI_P,iUPI_P",1,event); 
-#	event<-sub("iUPI_P",1.5,event); 
-#	event<-sub("hUPI_M,iUPI_M",2,event); 
-#	event<-sub("iUPI_M",2.5,event); 
 	return(event)
 }
 
-load_vcf <- function(vcf) {
-	awk_command<-paste(sep=" ", "awk" ,"'$1 ~/[XY]|(chr)?[1-9][0-9]?/","&&","$4 ~/^[ATCG]$/", "&&", "$5 ~/^[ATCG]$/", "&&","$7 ~/PASS|^[.]$/","&&", "$10 !~ /indel/" , "&&", "$10 ~ /[01][/]?[01]/", "{print $1,$2,$10}'")	
+load_vcf <- function(vcf,multi) {
+    awk_command<-NULL
+    if (multi) {
+       # todo, add functionality to print correct column if proband is not first
+	    awk_command<-paste(sep=" ", "awk" ,"'$1 ~/[XY]|(chr)?[1-9][0-9]?/","&&","$4 ~/^[ATCG]$/", "&&", "$5 ~/^[ATCG]$/", "&&","$7 ~/PASS|^[.]$/","&&", "$10 !~ /indel/" , "&&", "$10 ~ /[01][/]?[01]/", "{print $1,$2,$10}'")	
+    }
+    else {
+	    awk_command<-paste(sep=" ", "awk" ,"'$1 ~/[XY]|(chr)?[1-9][0-9]?/","&&","$4 ~/^[ATCG]$/", "&&", "$5 ~/^[ATCG]$/", "&&","$7 ~/PASS|^[.]$/","&&", "$10 !~ /indel/" , "&&", "$10 ~ /[01][/]?[01]/", "{print $1,$2,$10}'")	
+    }
 	sed_command<-"sed -e s/[Cc]hr//"	
 	chrom_pos_zyg<-data.matrix(do.call(rbind,strsplit((system(intern=T, command=paste(use_zcat_or_cat(vcf), vcf, "|", awk_command, "|", sed_command)))," ")))
 	chrom_pos_zyg[,1]<-numericCHR(chrom_pos_zyg[,1])
@@ -146,73 +141,78 @@ convert_chr_to_match_GenomePlot <-function (df_to_convert,sexChromosomes=plot_se
 	return(dchrompos)
 }
 
-# why can't i put the subroutines at the end of the script, like in perl?
-
 #MAIN
-
 load_library() 
 
 events_list_path<-commandArgs(trailingOnly = TRUE)[[1]]
 vcf<-commandArgs(trailingOnly = TRUE)[[2]]
 output_dir<-commandArgs(trailingOnly = TRUE)[[3]]
 plot_sex<-commandArgs(trailingOnly=TRUE)[[4]]
+multi<-commandArgs(trailingOnly=TRUE)[[5]]
 
 sample_name <- get_sample_name()
 
 # Load events
 chrom_pos_events<-load_events(events_list_path)
-# Only take positions from vcf if they are present in the events file; disabling for now
-chrom_pos_zyg<-get_matching_chr_pos(chrom_pos_events,load_vcf(vcf))
+
+# Only take positions from vcf if they are present in the events file
+chrom_pos_zyg<-get_matching_chr_pos(chrom_pos_events,load_vcf(vcf,multi))
+
 # chrom_pos_zyg<-chrom_pos_events
 # Convert plotting coordinates to match the quantsmooth paradigm
 chrom_pos_zyg_converted<-convert_chr_to_match_GenomePlot(chrom_pos_zyg)
 chrom_pos_events_converted<-convert_chr_to_match_GenomePlot(chrom_pos_events)
 
 #prepare data for graphing
-# prepare zygosity
+#prepare zygosity
 hom<-subset(chrom_pos_zyg_converted,chrom_pos_zyg_converted[,3]==0)
 het<-subset(chrom_pos_zyg_converted,chrom_pos_zyg_converted[,3]==1)
 
 # prepare Genotype events
 BPI<-subset(chrom_pos_events_converted,chrom_pos_events_converted[,3]==0)
-MI<-subset(chrom_pos_events_converted,chrom_pos_events_converted[,3]==0.5)
-hUPI_P<-subset(chrom_pos_events_converted,chrom_pos_events_converted[,3]==1)
-iUPI_P<-subset(chrom_pos_events_converted,chrom_pos_events_converted[,3]==1.5)
-hUPI_M<-subset(chrom_pos_events_converted,chrom_pos_events_converted[,3]==2)
-iUPI_M<-subset(chrom_pos_events_converted,chrom_pos_events_converted[,3]==2.5)
-
-
+UA_P<-subset(chrom_pos_events_converted,chrom_pos_events_converted[,3]==0.5)
+UI_P<-subset(chrom_pos_events_converted,chrom_pos_events_converted[,3]==1)
+UA_M<-subset(chrom_pos_events_converted,chrom_pos_events_converted[,3]==1.5)
+UI_M<-subset(chrom_pos_events_converted,chrom_pos_events_converted[,3]==2)
 
 # Plotting
-
 sample_name_events_plot_png<-paste(sep="", as.character(sample_name), ".events_plot.png")
 file_out_png<-paste(output_dir,sample_name_events_plot_png,sep="/")
-png(file=file_out_png,width=1200,height=700,res=75)
+sample_name_events_plot_pdf<-paste(sep="", as.character(sample_name), ".events_plot.pdf")
+file_out_pdf<-paste(output_dir,sample_name_events_plot_pdf,sep="/")
 
-# Plot using the vcf coordinates, since the event coordinates are a subset of the vcf coordiantes
+pdf(file=file_out_pdf,width=12, height=8)
 x<-prepareGenomePlot(chrom_pos_zyg,paintCytobands = TRUE, organism="hsa",main=sample_name,topspace=0,sexChromosomes=plot_sex)
-#legend(x="bottom",legend=rev(c("Hom","Het","BPI","MI","iUPI_M","hUPI_M","iUPI_P","hUPI_P")),fill=rev(c("black","red", "black","grey","darkgreen","lightgreen","darkblue","lightblue")))
-legend(x="bottom",legend=rev(c("Hom","Het","B","MI","UI_M","AI_M","UI_P","AI_P")),fill=rev(c("black","red", "black","grey","darkgreen","lightgreen","darkblue","lightblue")))
-
-#Plot Zygosity of Informative Events
-points(x=hom[,2],y=hom[,1]+0.1,pch=".",cex=1,col="black")
-points(x=het[,2],y=het[,1]+0.18,pch=".",cex=1,col="red")
-
-#Plot Genotype Events
-points(x=BPI[,2],y=BPI[,1]			+ 0.26,pch=".",cex=2,col="black")
-points(x=MI[,2],y=MI[,1]			+ 0.32,pch=".",cex=2,col="grey")
-points(x=hUPI_M[,2],y=hUPI_M[,1] 	+ 0.4,pch=".",cex=2,col="darkgreen")
-points(x=iUPI_M[,2],y=iUPI_M[,1] 	+ 0.48,pch=".",cex=2,col="lightgreen")
-points(x=hUPI_P[,2],y=hUPI_P[,1] 	+ 0.56,pch=".",cex=2,col="darkblue")
-points(x=iUPI_P[,2],y=iUPI_P[,1] 	+ 0.64,pch=".",cex=2,col="lightblue")
-
+my_colors<-c("red", "grey", "black","darkblue","lightblue","darkgreen","lightgreen")
+legend(x="bottom",legend=rev(c("Hom","Het","BPI","UI_P","UA_P","UI_M","UA_M")),fill=rev(my_colors))
+points(x=hom[,2],y=hom[,1]      + 0.1,   pch=".",cex=1,col= my_colors[1])
+points(x=het[,2],y=het[,1]      + 0.18,  pch=".",cex=1,col=my_colors[2])
+points(x=BPI[,2],y=BPI[,1]      + 0.26,  pch=".",cex=1,col=my_colors[3])
+points(x=UA_P[,2],y=UA_P[,1] 	+ 0.32,  pch=".",cex=3,col=my_colors[4])
+points(x=UI_P[,2],y=UI_P[,1] 	+ 0.40,  pch=".",cex=3,col=my_colors[5])
+points(x=UA_M[,2],y=UA_M[,1] 	+ 0.48,  pch=".",cex=3,col=my_colors[6])
+points(x=UI_M[,2],y=UI_M[,1] 	+ 0.56,  pch=".",cex=3,col=my_colors[7])
 dev.off()
 
+#}
 ## rm(chrom_pos_zyg) <-this does not seem to release the memory :-( , 
 ## and gc() didn't seem to work. why R, rhy.
 
-
-#for testing
-#events_list_path<-"/lustre/scratch107/projects/ddd/users/dk6/projects/upd/output/ddd/exome/DDD_MAIN5250962.events_list"
-#vcf<-"/lustre/scratch107/projects/ddd/users/dk6/data/exomes/indiv_samples/DDD_MAIN5250962.vcf.gz"
-#output_dir<-"~/programs/scripts/upd"
+#png(file=file_out_png,width=1200,height=700,res=75)
+## Plot using the vcf coordinates, since the event coordinates are a subset of the vcf coordiantes
+#x<-prepareGenomePlot(chrom_pos_zyg,paintCytobands = TRUE, organism="hsa",main=sample_name,topspace=0,sexChromosomes=plot_sex)
+#legend(x="bottom",legend=rev(c("Hom","Het","BPI","UI_M","UA_M","UI_P","UA_P")),fill=rev(c("black","red", "black","grey","darkgreen","lightgreen","darkblue","lightblue")))
+#
+##Plot Zygosity of Informative Events
+#points(x=hom[,2],y=hom[,1]+0.1,pch=".",cex=1,col="black")
+#points(x=het[,2],y=het[,1]+0.18,pch=".",cex=1,col="red")
+#
+##Plot Genotype Events
+#points(x=BPI[,2],y=BPI[,1]			+ 0.26,pch=".",cex=3,col="black")
+#points(x=UA_P[,2],y=UA_P[,1] 	+ 0.32,pch=".",cex=3,col="darkgreen")
+#points(x=UI_P[,2],y=UI_P[,1] 	+ 0.40,pch=".",cex=3,col="lightgreen")
+#points(x=UA_M[,2],y=UA_M[,1] 	+ 0.48,pch=".",cex=3,col="darkblue")
+#points(x=UI_M[,2],y=UI_M[,1] 	+ 0.56,pch=".",cex=3,col="lightblue")
+#
+#dev.off()
+#
