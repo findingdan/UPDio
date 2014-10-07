@@ -851,7 +851,7 @@ for searching for mendelian inconsistent sites; occassionally useful for finding
 =head1 LICENSE
 
   Copyright (c) 2007 Genome Research Ltd.
-  Author: Joe Bloggs <optional@address>
+  Author: Dan King
   
   Any redistribution or derivation in whole or in part including any
   substantial portion of this code must include this copyright and
