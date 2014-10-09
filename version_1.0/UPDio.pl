@@ -850,7 +850,7 @@ for searching for mendelian inconsistent sites; occassionally useful for finding
 
 =head1 LICENSE
 
-  Copyright (c) 2007 Genome Research Ltd.
+  Copyright (c) 2014 Genome Research Ltd.
   Author: Dan King
   
   Any redistribution or derivation in whole or in part including any
