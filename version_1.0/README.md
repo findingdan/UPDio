@@ -49,10 +49,10 @@ Dependencies can be downloaded from CPAN and CRAN.
 ## Pre-processing
 UPDio requires two input file format requirements:
 	
-1. The VCF files must be sorted in numeric chromosome order: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X
+1. The VCF files must be sorted in numeric chromosome order: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X  
 		We include a sort-vcf script to generate vcfs sorted in this order
-2. The VCF files must include homozygous reference (homREF) genotypes, i.e. "0/0" positions
-		We include a add_hom_refs_to_sorted_vcfs.pl script that can add these positions
+2. The VCF files must include homozygous reference (homREF) genotypes, i.e. "0/0" positions  
+		We include a add_hom_refs_to_sorted_vcfs.pl script that can add these positions  
 		Note that your VCFs may already include 0/0 positions, if so, you can skip this step.
 
 The pre_processing directory contains instructions for how to prepare input files for UPDio  
