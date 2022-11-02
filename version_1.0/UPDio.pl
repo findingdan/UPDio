@@ -24,15 +24,16 @@ use File::Basename;
 
 # Global variables
 my $fh_href;
+my $script_path = readlink __FILE__;
 
 my %opt = (
     increase_cnv_filtering   => 0,
     significance_level       => 0,
     include_MI               => 0,
     include_X                => 0,
-    common_cnv_file          => dirname(__FILE__) . "/sample_data/common_dels_1percent.tsv",
+    common_cnv_file          => dirname($script_path) . "/sample_data/common_dels_1percent.tsv",
     output_path              => cwd() . "/output_dir",
-    R_scripts_dir            => dirname(__FILE__) . "/scripts",
+    R_scripts_dir            => dirname($script_path) . "/scripts",
     path_to_R                => "R",
     high_qual                => 0,
     testing                  => 0
