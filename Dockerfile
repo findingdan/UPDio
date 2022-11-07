@@ -12,13 +12,10 @@ RUN mamba install \
     perl-vcftools-vcf \
     perl-list-moreutils \
     perl-math-round \
+    perl-iterator-simple \
     bioconductor-quantsmooth \
     r-ggplot2 && \
     mamba clean --all --yes
-
-# Should be replaced by the conda installation perl-iterator-simple once merged.
-# https://github.com/conda-forge/staged-recipes/pull/20963
-RUN cpan Iterator::Simple && rm -rfv /root/.cpan rm -rf /tmp/*
 
 ADD version_1.0 /usr/share/UPDio
 
