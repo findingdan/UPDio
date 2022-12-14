@@ -1,0 +1,14 @@
+name: updio
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - perl
+  - perl-statistics-r
+  - perl-path-class
+  - perl-vcftools-vcf
+  - perl-list-moreutils
+  - perl-math-round
+  - bioconductor-quantsmooth
+  - r-ggplot2

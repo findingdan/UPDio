@@ -1,6 +1,8 @@
-UPDio, for detection of Uniparental Disomy in trios.
+# UPDio, for detection of Uniparental Disomy in trios.
+================
+Kevin Yauy, MD (Radboudumc, CHU de Montpellier)
 
-Please see our manuscript for our motivation
- http://genome.cshlp.org/content/early/2013/12/19/gr.160465.113.abstract
+This is a fork from the original repository from [Dan King](https://github.com/findingdan/UPDio)
 
-Version_1.0 adds multisample vcf support.
+I fixed an annoying plot bug (change variable and legend).
+This version is the one used for the [UPDive study](https://github.com/kyauy/UPDive).

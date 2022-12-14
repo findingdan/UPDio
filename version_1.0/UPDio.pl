@@ -20,19 +20,21 @@ use List::Util qw(sum);
 use List::MoreUtils qw( any uniq all );
 use Cwd;
 use Math::Round qw(nearest_floor);
+use File::Basename;
 
 # Global variables
 my $fh_href;
+my $script_path = readlink __FILE__;
 
 my %opt = (
     increase_cnv_filtering   => 0,
     significance_level       => 0,
     include_MI               => 0,
     include_X                => 0,
-    common_cnv_file          => "sample_data/common_dels_1percent.tsv",
+    common_cnv_file          => dirname($script_path) . "/sample_data/common_dels_1percent.tsv",
     output_path              => cwd() . "/output_dir",
-    R_scripts_dir            => "scripts",
-    path_to_R                => "/software/R-2.15.2/bin/R",				#notes: farm2 /software/R-2.14.1/bin/R   farm3 /software/team29/bin/R
+    R_scripts_dir            => dirname($script_path) . "/scripts",
+    path_to_R                => "R",
     high_qual                => 0,
     testing                  => 0
 );
