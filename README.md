@@ -1,9 +1,23 @@
-Welcome to UPDio, Version 1.0
+# UPDio, for detection of Uniparental Disomy in trios.
+================
+This is a fork from the original repository from [Dan King](https://github.com/findingdan/UPDio)
 
-# This verison adds mulitsample support.
+[Changes made by Keven Yuay](https://github.com/kyauy/updio) were merged into this repository.
 
-Introduction 
-	UPDio is designed to identify uniparental disomy in probands of trio VCF data.  
+# Changelog
+
+## 1.1
+
+- Made minor changes to the script making it into a portable executable that can be executed anywhere.
+- Added a conda environment in which the script can execute
+- Added a Dockerfile for building a container with updio. Pre-built container here: https://quay.io/biowdl/updio
+- Merged [changes made by Keven Yuay](https://github.com/kyauy/updio)
+
+## 1.0 
+Original Dan King's release
+
+# Introduction 
+	UPDio is designed to identify uniparental disomy in probands of trio VCF data. It is located in the updio folder.  
 	
 	This directory contains 2 files 
 		1. README.txt
@@ -27,7 +41,7 @@ Introduction
 	At the command line, type 'perldoc UPDio.pl' to familiarize yourself with how to run UPDio, then return here.
 
 
-Setup
+# Setup
 	This program is written in Perl and R
 	Please ensure that dependencies are installed before attempting to run UPDio; they are all required.
 	Dependencies can be downloaded from CPAN and CRAN.
@@ -45,7 +59,7 @@ Setup
 		Const::Fast
 	UPDio was tested using R version 2.14.1
 
-Pre-processing
+# Pre-processing
 	UPDio requires two input file format requirements:
 	1. The VCF files must be sorted in numeric chromosome order: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X
 		We include a sort-vcf script to generate vcfs sorted in this order
@@ -58,12 +72,12 @@ Pre-processing
 	# If this doesn't work, email me and I'll make the positions file for you.
 	# SureSelect_v4 is now on github, SureSelect_v5 soon to be uploaded
 	
-Running UPDio
+# Running UPDio
 	First try running UPDio on the example trio that is supplied before running it on your own trio data
 	To do this, refer to the file in 'scripts/run_UPDio_example.sh' containing the command to run UPDio on the example trio
 	When this script has completed you should be able to observe a UPD event in the output files.
 
-Output
+# Output
 	Output is stored by default in a directory called 'output_dir' but you can specify your own output directory as an option to UPDio
 	Output files suffixes
 		1. table
@@ -79,7 +93,7 @@ Output
 			a log file
 
 
-Troubleshooting
+# Troubleshooting
 Q: I'm getting an error message that looks like this: "Can't locate Statistics::R in @INC (@INC contains: ...)"
 A: Your perl dependencies are not installed; install all dependencies before running UPDio
 
