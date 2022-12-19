@@ -17,6 +17,11 @@ RUN mamba install \
     r-ggplot2 && \
     mamba clean --all --yes
 
-ADD version_1.0 /usr/share/UPDio
+RUN mkdir /usr/share/UPDio
+ADD ./UPDio.pl /usr/share/UPDio/UPDio.pl 
+ADD ./scripts /usr/share/UPDio/scripts 
+ADD ./exome_designs /usr/share/UPDio/exome_designs
+ADD ./pre_processing /usr/share/UPDio/pre_processing
+ADD ./sample_data /usr/share/UPDio/sample_data
 
 RUN ln -s /usr/share/UPDio/UPDio.pl /usr/bin/updio
