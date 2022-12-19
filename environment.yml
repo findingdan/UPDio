@@ -10,5 +10,6 @@ dependencies:
   - perl-vcftools-vcf
   - perl-list-moreutils
   - perl-math-round
+  - perl-iterator-simple
   - bioconductor-quantsmooth
   - r-ggplot2
