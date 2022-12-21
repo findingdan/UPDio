@@ -1,0 +1,29 @@
+<tool id="updio" name="UPDio is designed to detect UPD events in probands from vcf trio data." version="0.1.0+galaxy0" python_template_version="3.5" profile="21.05">
+    <requirements>
+        <requirement type="package" version="1.1.0">updio</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+       ln -s $multisample_vcf input.vcf &&
+        updio --multisample_vcf input.vcf
+        --childID $child_id
+        --momID $mom_id
+        --dadID $dad_id &&
+        mv output_dir/${child_id}.table ${updio_table}
+    ]]></command>
+    <inputs>
+        <param name="multisample_vcf" type="data" format="vcf"
+               label="multisample VCF file" />
+        <param name="child_id" type="text"
+               label="child sample ID in the VCF file" />
+        <param name="mom_id" type="text"
+               label="Mother sample ID in the VCF file" />
+        <param name="dad_id" type="text"
+               label="Father sample ID in the VCF file" />
+    </inputs>
+    <outputs>
+        <data format="tsv" name="updio_table" label="${tool.name} on ${on_string}: table"/>
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>
