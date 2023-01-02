@@ -1,0 +1,7 @@
+categories: 
+  - Variant Analysis
+description: UPDio is designed to detect UPD events in probands from vcf trio data.
+name: updio
+owner: rhpvorderman
+homepage_url: https://github.com/rhpvorderman/updio
+
