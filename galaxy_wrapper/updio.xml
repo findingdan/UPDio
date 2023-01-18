@@ -1,4 +1,4 @@
-<tool id="updio" name="UPDio" version="1.1.0+galaxy1" python_template_version="3.5" profile="21.05">
+<tool id="updio" name="UPDio" version="1.1.0+galaxy2" python_template_version="3.5" profile="21.05">
     <requirements>
         <requirement type="package" version="1.1.0">updio</requirement>
         <container type="docker">quay.io/biowdl/updio:1.1.0</container>
@@ -23,8 +23,8 @@
                label="Father sample ID in the VCF file" />
     </inputs>
     <outputs>
-        <data format="tsv" name="updio_table" label="${tool.name} on ${on_string}: table"/>
-        <data format="tsv" name="updio_verdict" label="${tool.name} on ${on_string}: verdict"/>
+        <data format="tsv" name="updio_table" label="${tool.name} on ${child_id}: table"/>
+        <data format="tsv" name="updio_verdict" label="${tool.name} on ${child_id}: verdict"/>
     </outputs>
     <help><![CDATA[
         UPDio is designed to detect UPD events in probands from vcf trio data.
