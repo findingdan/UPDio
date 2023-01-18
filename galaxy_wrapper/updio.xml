@@ -9,7 +9,8 @@
         --childID $child_id
         --momID $mom_id
         --dadID $dad_id &&
-        mv output_dir/${child_id}.table ${updio_table}
+        mv output_dir/${child_id}.table ${updio_table} &&
+        mv output_dir/${child_id}.upd ${updio_verdict}
     ]]></command>
     <inputs>
         <param name="multisample_vcf" type="data" format="vcf"
@@ -23,6 +24,7 @@
     </inputs>
     <outputs>
         <data format="tsv" name="updio_table" label="${tool.name} on ${on_string}: table"/>
+        <data format="tsv" name="updio_verdict" label="${tool.name} on ${on_string}: verdict"/>
     </outputs>
     <help><![CDATA[
         UPDio is designed to detect UPD events in probands from vcf trio data.
