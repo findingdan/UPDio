@@ -1,4 +1,4 @@
-<tool id="updio" name="UPDio" version="1.1.0+galaxy0" python_template_version="3.5" profile="21.05">
+<tool id="updio" name="UPDio" version="1.1.0+galaxy1" python_template_version="3.5" profile="21.05">
     <requirements>
         <requirement type="package" version="1.1.0">updio</requirement>
         <container type="docker">quay.io/biowdl/updio:1.1.0</container>
