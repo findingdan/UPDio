@@ -4,8 +4,8 @@
         <container type="docker">quay.io/biowdl/updio:1.1.0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-       ln -s $multisample_vcf input.vcf &&
-        updio --multisample_vcf input.vcf
+       ln -s $multisample_vcf input.vcf.gz &&
+        updio --multisample_vcf input.vcf.gz
         --childID $child_id
         --momID $mom_id
         --dadID $dad_id &&
@@ -13,7 +13,7 @@
         mv output_dir/${child_id}.upd ${updio_verdict}
     ]]></command>
     <inputs>
-        <param name="multisample_vcf" type="data" format="vcf"
+        <param name="multisample_vcf" type="data" format="vcf_bgzip"
                label="multisample VCF file" />
         <param name="child_id" type="text"
                label="child sample ID in the VCF file" />
